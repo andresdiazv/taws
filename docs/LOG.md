@@ -4,13 +4,14 @@ Template:
 - **Blocked / open**:
 - **Reflection**:
 
-2026-09-25:
-- **Built**:
-- **Learned**:
-- **Blocked / open**:
-- **Reflection**:
-I've added a Makefiie and learned about rules, targets, requirements. I need to create a section on this LOG.md to track future improvements. One of them I will add is improving the Makefile to add variables so future changes to it will be easier to accomplish.
+## Future Improvements
+- [ ] Add variables to the Makefile so future changes are easier. (added 2026-09-25)
 
+2026-09-25
+- **Built**: A Makefile, and a GitHub Actions workflow that uses the Makefile to run the tests.
+- **Learned**: How a Makefile works: rules, targets, and requirements.
+- **Blocked / open**: None.
+- **Reflection**: Realized I need a place to track things I want to improve later, so I added a Future Improvements section to this log.
 
 2026-09-24:
 - **Built**: Added speed conversions between knots and meters per second, and switched all my conversion numbers to full precision instead of rounded values. Updated the tests to match, and everything passes. The core unit conversions are basically done.
