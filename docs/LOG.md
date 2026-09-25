@@ -4,7 +4,15 @@ Template:
 - **Blocked / open**:
 - **Reflection**:
 
-2026-09-24
+2026-09-25:
+- **Built**:
+- **Learned**:
+- **Blocked / open**:
+- **Reflection**:
+I've added a Makefiie and learned about rules, targets, requirements. I need to create a section on this LOG.md to track future improvements. One of them I will add is improving the Makefile to add variables so future changes to it will be easier to accomplish.
+
+
+2026-09-24:
 - **Built**: Added speed conversions between knots and meters per second, and switched all my conversion numbers to full precision instead of rounded values. Updated the tests to match, and everything passes. The core unit conversions are basically done.
 - **Learned**: Rounding numbers early can quietly cause wrong answers later, which matters a lot in a project like this. Once I stopped rounding (for example, using 3.2808398950131235 feet per meter instead of 3.28084), my tests failed because my expected values weren't as precise as the new results. Now I use Python in the terminal to calculate expected values and paste them straight into my tests. Much better than doing it on my phone calculator.
 - **Blocked / open**: None. Next: Makefile and GitHub Actions so the tests run automatically.

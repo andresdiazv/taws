@@ -7,3 +7,5 @@
 ## Resources used:
 - https://myengineeringtools.com/EngConverter/index.html
     - Used for formulas like METERS_TO_FEET or METERS_PER_SECOND_TO_KNOTS.
+- https://makefiletutorial.com/
+    - Used to create the Makefile. Learned about rules, targets, requirements
