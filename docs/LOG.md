@@ -7,6 +7,13 @@ Template:
 ## Future Improvements
 - [ ] Add variables to the Makefile so future changes are easier. (added 2026-09-25)
 
+2026-09-27
+- **Built**: Wrote docs/SCOPE.md (v0.1): problem statement, goal, assumptions, in and out of scope, known limitations, success criteria, constraints, risks, definitions, references, open items, and an appendix of Cessna 172P performance figures pulled from the Pilot's Operating Handbook. Added the airport database and premature descent alerting back into scope once I learned real Class B systems include them. Set up FlightGear with the 172P over Puerto Rico.
+- **Learned**: A scope document is mostly about what you are *not* building, and every exclusion needs a reason. Assumptions drive almost every number later, so each one should trace to a source (the POH for speeds and ceiling, AC 23-18 paragraphs for the Class B functions). The system uses ground speed, not airspeed, because the GPS reports it and wind changes how fast you actually reach terrain.
+- **Blocked / open**: TBD-103 (maximum descent rate) needs measuring in FlightGear. First attempt, the plane spiraled because nothing was flying it. Fix: start paused with --enable-freeze, center controls with numpad 5, and engage the KAP 140 autopilot (Autopilot, then ALT) right after unpausing. TBD-106 (update rate) stays open until requirements.
+- **Next**: Measure descent rates in FlightGear, write docs/conops.md, extract the Class B lines from AC 23-18 into the requirements file, and draft the first ten requirements.
+- **Reflection**: Documentation writing and reading is difficult but I understand why it is needed. I learned a lot from reading the different documents on AC 23-18, Cessna 172P, and other related documents. Writing the SCOPE.md took many hours and showed me how to scan documents and grab the information I need. This document sets me up for the future when I have to code the rest of the system so I don't stray away from the scope of the project.
+
 2026-09-25
 - **Built**: A Makefile, and a GitHub Actions workflow that uses the Makefile to run the tests.
 - **Learned**: How a Makefile works: rules, targets, and requirements.
