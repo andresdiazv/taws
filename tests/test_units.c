@@ -11,7 +11,7 @@ void tearDown(void)
 {
 }
 
-/* ---- feet_to_meters ---- */
+/* feet_to_meters */
 
 void test_feet_to_meters_zero(void)
 {
@@ -36,7 +36,7 @@ void test_feet_to_meters_negative_delta(void)
     TEST_ASSERT_DOUBLE_WITHIN(TOL_UNIT_CONVERSION, -30.48, feet_to_meters(-100.0));
 }
 
-/* ---- meters_to_feet ---- */
+/* meters_to_feet */
 
 void test_meters_to_feet_zero(void)
 {
@@ -59,7 +59,7 @@ void test_meters_to_feet_negative_delta(void)
     TEST_ASSERT_DOUBLE_WITHIN(TOL_UNIT_CONVERSION, -328.0839895013123, meters_to_feet(-100.0));
 }
 
-/* ---- meters_per_second_to_knots ---- */
+/* meters_per_second_to_knots */
 
 void test_mps_to_knots_zero(void)
 {
@@ -82,7 +82,34 @@ void test_mps_to_knots_negative_delta(void)
     TEST_ASSERT_DOUBLE_WITHIN(TOL_UNIT_CONVERSION, -194.38444924406047, meters_per_second_to_knots(-100.0));
 }
 
-/* ---- round trip ---- */
+/* knots_to_meters_per_second */
+
+void test_knots_to_mps_zero(void)
+{
+    TEST_ASSERT_DOUBLE_WITHIN(TOL_UNIT_CONVERSION, 0.0, knots_to_meters_per_second(0.0));
+}
+
+/* 1852 m/NM divided by 3600 s/h*/
+void test_knots_to_mps_one_knot(void)
+{
+    TEST_ASSERT_DOUBLE_WITHIN(TOL_UNIT_CONVERSION, 0.5144444444444445, knots_to_meters_per_second(1.0));
+}
+
+void test_knots_to_mps_large_value(void)
+{
+    TEST_ASSERT_DOUBLE_WITHIN(TOL_UNIT_CONVERSION, 257.22222222222223, knots_to_meters_per_second(500.0));
+}
+
+void test_knots_to_mps_negative_delta(void)
+{
+    TEST_ASSERT_DOUBLE_WITHIN(TOL_UNIT_CONVERSION, -51.44444444444445, knots_to_meters_per_second(-100.0));
+}
+
+// knots * METERS_PER_NAUTICAL_MILE / SECONDS_PER_HOUR.
+    // METERS_PER_NAUTICAL_MILE = 1852.0
+    // SECONDS_PER_HOUR = 3600.00
+
+/* round trip */
 
 void test_feet_meters_round_trip(void)
 {
@@ -107,6 +134,11 @@ int main(void)
     RUN_TEST(test_mps_to_knots_one_mps);
     RUN_TEST(test_mps_to_knots_large_value);
     RUN_TEST(test_mps_to_knots_negative_delta);
+
+    RUN_TEST(test_knots_to_mps_zero);
+    RUN_TEST(test_knots_to_mps_one_knot);
+    RUN_TEST(test_knots_to_mps_large_value);
+    RUN_TEST(test_knots_to_mps_negative_delta);
 
     RUN_TEST(test_feet_meters_round_trip);
 
