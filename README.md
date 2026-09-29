@@ -29,7 +29,7 @@ make clean    # remove build output
 ## Resources used
 
 - https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentid/22312: Acceptable means of obtaining FAA airworthiness approval for the installation of a TAWS that has been approved under Technical Standard Order (TSO)-C151a, TAWS, in a Part 23 airplane. I used this as a reference for the entire project.
-- https://www.glasscockpitaviation.com/wp-content/uploads/2022/07/cessna-n54829-poh.pdf: CESSNA 172P (1982) will be the airplane we are testing with. Using this as a reference for items like 
+- https://www.glasscockpitaviation.com/wp-content/uploads/2022/07/cessna-n54829-poh.pdf: CESSNA 172P (1982) will be the airplane we are testing with. Used as the source for the aircraft performance figures (speeds, climb rate, and service ceiling) in SCOPE.md Appendix A.
 - https://ntrs.nasa.gov/citations/20170001761: NASA Systems Engineering Handbook. Used as a reference when building SCOPE.md
 - https://makefiletutorial.com: learned about rules, targets, prerequisites, variables.
 - https://github.com/ThrowTheSwitch/Unity: reference for unit testing in C.

@@ -2,8 +2,8 @@
 
 **Project:** Class B Terrain Awareness and Warning System (TAWS) prototype
 **Document:** TAWS-SCOPE
-**Version:** 0.1
-**Last updated:** 2026-09-27
+**Version:** 0.2
+**Last updated:** 2026-09-28
 
 ---
 
@@ -95,10 +95,10 @@ The system implements the Class B functions described in Federal Aviation Admini
 ### 5.3 Hardware and software
 
 - One microcontroller board running the alerting software written in the C programming language.
-- A satellite navigation receiver, a barometric pressure sensor, a memory card holding the terrain map and airport database, and indicator lights plus an audible alert device.
+- A satellite navigation receiver, a barometric pressure sensor, a memory card holding the terrain map and airport database, indicator lights, and a speaker driven by an audio playback module for spoken alerts.
 - A terrain map built from public United States Geological Survey (USGS) elevation data covering Puerto Rico.
 - An airport database built from public FAA or equivalent open data, containing runway threshold positions, elevations, and headings for the airports defined in A-8.
-- An automated test harness written in Python, driven by the FlightGear flight simulator.
+- An automated test harness written in Python that replays flight data files and connects to the FlightGear flight simulator.
 - A reference model of the alerting logic written in MATLAB, used to generate expected results for the tests.
 
 ### 5.4 Verification approach
@@ -108,11 +108,17 @@ The system is verified at four levels, each reusing the tests from the level bef
 | Level | Description |
 |---|---|
 | Unit test | Each software module is tested alone on a development computer, with inputs chosen to exercise normal cases and invalid input. |
-| Software in the loop | The complete alerting software runs on a development computer against recorded flight data, and its output is compared against the MATLAB reference model. |
+| Software in the loop | The complete alerting software runs on a development computer against flight data files, and its output is compared against the MATLAB reference model. |
 | Hardware in the loop | The same software runs on the microcontroller board. FlightGear flies the aircraft and streams position, altitude, and speed to the board over the serial connection. The board runs the production software and produces real alerts; it cannot distinguish simulated inputs from live sensors. |
 | Bench test with live sensors | The real satellite navigation receiver and barometric pressure sensor are run at a fixed, known location. Reported position is checked against a map, computed altitude against a nearby weather station, and the terrain lookup for that position against published elevation data. This confirms that the drivers, parsers, and terrain lookup work on live data rather than only on simulated data. |
 
-Simulator runs are recorded to data files once and replayed during automated testing, so that test results are repeatable.
+Flight data files come from three sources:
+
+1. **Scripted.** A script writes the flight path directly, for simple paths such as a straight descent toward a ridge.
+2. **Recorded.** A FlightGear flight is recorded once, for realistic paths with wind, turns, and small errors.
+3. **Modified.** A good file is copied and deliberately broken, for example by marking the position invalid or freezing the values. This is called fault injection, and it is the only way to test health monitoring (F-8), because the simulator always sends good data.
+
+Every file is replayed during automated testing, so test results are repeatable.
 
 ---
 
@@ -168,7 +174,7 @@ The project is complete when all of the following are true:
 4. In simulation, terrain warnings occur at least 30 seconds before the projected point of impact. At 120 knots that is about one nautical mile of room, and enough time for this aircraft to climb roughly 350 feet, which clears the kind of ridge the system is meant to protect against.
 5. Across 20 simulated flights flown normally, no nuisance alerts occur while cruising or en route.
 6. Across 10 simulated approaches to airports in the database, at most one nuisance alert occurs. Every one that does occur is investigated, explained, and written up in the verification report.
-7. Code coverage meets the target recorded in the verification plan.
+7. Code coverage meets the target set in TBD-113.
 8. The repository contains everything needed for another person to reproduce the results.
 
 ---
@@ -222,7 +228,7 @@ The project is complete when all of the following are true:
 | Premature descent alert (PDA) | An alert issued when the aircraft is hazardously below the normal approach path to the nearest runway. |
 | Runway threshold | The beginning of the portion of the runway usable for landing, used here as the reference point for the approach path. |
 | Terrain awareness and warning system (TAWS) | Equipment that warns the crew about hazardous terrain in time to avoid it. |
-| Unit | The finished prototype: the microcontroller board, the sensors, the memory card, and the lights and sounder, together in one enclosure. |
+| Unit | The finished prototype: the microcontroller board, the sensors, the memory card, the lights, and the speaker, together in one enclosure. |
 | Update rate | How many times per second the software reads its sensors, recalculates, and decides whether to alert. |
 
 ---
@@ -243,20 +249,7 @@ The project is complete when all of the following are true:
 
 ## 13. Open items
 
-| ID | Description | Resolve by |
-|---|---|---|
-| TBD-103 | Maximum descent rate the system must handle, to be confirmed by flying and measuring descents in the simulator | Requirements review |
-| TBD-106 | Update rate and the time budget allowed for one cycle | Requirements review |
-
-Resolved items are kept here so the history of each decision is visible.
-
-| ID | Description | Resolution | Date |
-|---|---|---|---|
-| TBD-100 | Minimum warning time before projected impact | 30 seconds | 2026-09-27 |
-| TBD-101 | Number of normal flights used to measure nuisance alerts | 20 flights | 2026-09-27 |
-| TBD-102 | Acceptable nuisance alerts | None while cruising; at most one per ten approaches | 2026-09-27 |
-| TBD-104 | Airports included in the database | TJPS, TJSJ, TJRV | 2026-09-27 |
-| TBD-105 | Number of simulated approaches used for nuisance measurement | 10 approaches | 2026-09-27 |
+All open and resolved items for the project are kept in [TBD.md](TBD.md).
 
 ---
 
@@ -265,6 +258,7 @@ Resolved items are kept here so the history of each decision is visible.
 | Version | Date | Description |
 |---|---|---|
 | 0.1 | 2026-09-27 | Initial draft |
+| 0.2 | 2026-09-28 | Replaced the audible alert device with a speaker and audio playback module, so alerts can be spoken. Added the three sources of flight data files to section 5.4 and updated the test harness description in section 5.3. Success criterion 7 now points to TBD-113 instead of a verification plan. Moved open items to TBD.md. |
 
 ---
 
