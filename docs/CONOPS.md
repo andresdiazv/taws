@@ -2,8 +2,8 @@
 
 **Project:** Class B Terrain Awareness and Warning System (TAWS) prototype\
 **Document:** TAWS-CONOPS\
-**Version:** 0.1\
-**Last updated:** 2026-09-28
+**Version:** 0.2\
+**Last updated:** 2026-09-29
 
 ---
 
@@ -26,6 +26,7 @@ This document covers a small piston airplane (the Cessna 172P) flying over the m
 | [SCOPE.md](SCOPE.md)| Referenced in the Scope section of this document. |
 | [TBD.md](TBD.md) | Open items raised in this document. |
 | FAA Advisory Circular 23-18 | Source of the Class B functions, alert types, and alert priority order. |
+| FAA TSO-C151c, Appendix 1, effective 6/27/12 | Source of the aural alert wording (Table 4-1, Class B). |
 
 ---
 
@@ -59,7 +60,7 @@ These gaps lead to controlled flight into terrain (CFIT).
 
 ### 5.1 Overview
 
-The TAWS is a small unit that knows where the airplane is, how high it is, and what the terrain around it looks like. It stays quiet during normal flight. When the airplane is headed toward terrain, descending too fast, or too low for where it is, it gives the pilot a spoken message and a light. A caution tells the pilot to pay attention. A warning tells the pilot to act now. If the unit cannot trust its own data, it says so instead of staying silent.
+The TAWS is a small unit that knows where the airplane is, how high it is, and what the terrain around it looks like. It stays quiet during normal flight. When the airplane is headed toward terrain, descending too fast, or too low for where it is, it gives the pilot a spoken message and a text message on a small display. A caution tells the pilot to pay attention. A warning tells the pilot to act now. If the unit cannot trust its own data, it says so instead of staying silent.
 
 ### 5.2 Users and stakeholders
 
@@ -77,7 +78,8 @@ The TAWS is a small unit that knows where the airplane is, how high it is, and w
 | Input | FlightGear simulator (testing only) | Replaces both sensors with simulated data over a serial connection |
 | Stored data | Terrain map (memory card) | Ground height at each position in Puerto Rico |
 | Stored data | Airport database (memory card) | Runway positions, elevations, and headings for TJPS, TJSJ, and TJRV |
-| Output | Indicator lights | Caution, warning, and system unavailable |
+| Stored data | Settings file (memory card) | Terrain ahead wording variant (A or B) |
+| Output | Small color display | Alert text in amber (caution) or red (warning), and system status |
 | Output | Speaker with audio playback module | Spoken alert messages, played from recorded audio files |
 
 ### 5.4 Major functions
@@ -99,25 +101,34 @@ The TAWS is a small unit that knows where the airplane is, how high it is, and w
 
 | State | Description | Entered when | Exited when |
 |---|---|---|---|
-| Self test | Checks sensors, memory card, and outputs. | Power is applied. | Test passes (to On ground) or fails (to Unavailable). |
-| On ground | All alerts inhibited. | Self test passes, or the airplane lands. | The airplane is judged airborne (TBD-107). |
-| Airborne | All alerting functions active. | The airplane is judged airborne (TBD-107). | The airplane lands, or data becomes invalid. |
-| Unavailable | Terrain alerting inhibited. Unavailable light on. | Self test fails, or sensor or terrain data becomes invalid. | Valid data returns (TBD-108). |
+| Self test | Checks sensors, memory card, and outputs. If the airplane is already airborne, only the silent checks run. | Power is applied. | Test passes (to On ground or Airborne, using the rule below) or fails (to Unavailable). |
+| On ground | All alerts inhibited. | Self test passes, or ground speed or height above terrain drops below its threshold. | Ground speed is above TBD-118 and height above terrain is above TBD-119. |
+| Airborne | All alerting functions active. | Ground speed is above TBD-118 and height above terrain is above TBD-119. | Ground speed or height above terrain drops below its threshold, or data becomes invalid. |
+| Unavailable | Terrain alerting inhibited. Unavailable message shown. | Self test fails, or sensor or terrain data becomes invalid. | Valid data returns (TBD-108). |
 
 ### 5.6 Alerts seen by the pilot
 
-Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only the Class B TAWS entries are listed. When two alerts are active at once, only the one with the lower number is spoken. Messages marked with an asterisk (\*) still need to be confirmed (see TBD-109).
+Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only the Class B TAWS entries are listed. When two alerts are active at once, only the one with the lower number is spoken. All aural wording is quoted from TSO-C151c Appendix 1 Table 4-1, Class B. The terrain ahead alerts show the default wording, Variant A; both variants are in section 5.7. Altitude loss after takeoff uses "Don't Sink" only, so "Too Low Terrain" always means premature descent. The display shows the spoken message in capitals, without repeats, for example "PULL UP" or "CAUTION TERRAIN". "Five Hundred" plays once per descent. "TAWS Unavailable" is spoken once, and the display keeps showing it until the system recovers.
 
 | Priority | Alert | Type | Aural message | Visual indication | Expected pilot response |
 |---|---|---|---|---|---|
-| 2 | Excessive descent | Warning | "Pull up"\* | Warning light | Climb immediately. |
-| 3 | Terrain ahead | Warning | "Terrain, terrain, pull up"\* | Warning light | Climb immediately. |
-| 6 | Terrain ahead | Caution | "Caution, terrain"\* | Caution light | Check position and altitude. Climb or turn away. |
-| 7 | Premature descent | Caution | "Too low terrain" | Caution light | Stop descending until on the normal approach path. |
-| 8 | Five hundred feet | Callout | "Five hundred" | None | None. Awareness only. |
-| 9 | Excessive descent | Caution | "Sink rate" | Caution light | Reduce descent rate. |
-| 10 | Altitude loss after takeoff | Caution | "Don't sink" | Caution light | Establish a climb. |
-| None | System unavailable | Status | TBD-110 | Unavailable light | Do not rely on the TAWS. Fly by other means. |
+| 2 | Excessive descent | Warning | "Pull-Up" | Red text | Climb immediately. |
+| 3 | Terrain ahead | Warning | "Terrain, Terrain; Pull-Up, Pull-Up" | Red text | Climb immediately. |
+| 6 | Terrain ahead | Caution | "Caution, Terrain; Caution, Terrain" | Amber text | Check position and altitude. Climb or turn away. |
+| 7 | Premature descent | Caution | "Too Low Terrain" | Amber text | Stop descending until on the normal approach path. |
+| 8 | Five hundred feet | Callout | "Five Hundred" | None | None. Awareness only. |
+| 9 | Excessive descent | Caution | "Sink Rate" | Amber text | Reduce descent rate. |
+| 10 | Altitude loss after takeoff | Caution | "Don't Sink" | Amber text | Establish a climb. |
+| None | System unavailable | Status | "TAWS Unavailable" (once) | Unavailable message | Do not rely on the TAWS. Fly by other means. |
+
+### 5.7 Terrain ahead wording variants
+
+TSO-C151c Appendix 1 para 4.7 allows two wordings for the terrain ahead alerts. The alert logic is the same; only the words differ. The system uses Variant A unless Variant B is selected (TAWS-SYS-510 to 530).
+
+| Variant | Caution | Warning |
+|---|---|---|
+| A (default) | "Caution, Terrain; Caution, Terrain" | "Terrain, Terrain; Pull-Up, Pull-Up" |
+| B | "Terrain Ahead; Terrain Ahead" | "Terrain Ahead, Pull-Up; Terrain Ahead, Pull-Up" |
 
 ---
 
@@ -143,7 +154,7 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Airport or area:** TJSJ to TJPS, crossing the Cordillera Central
 - **Starting conditions:** Airplane parked at TJSJ, unit powered off, clear weather.
 - **Sequence of events:** Pilot powers on the unit, taxis, takes off, climbs, crosses the mountains well above the terrain, descends, and lands at TJPS.
-- **Expected system behavior:** Self test passes. No alerts during taxi, takeoff, climb, or cruise. "Five hundred" on approach. No terrain alerts during the landing.
+- **Expected system behavior:** Self test passes. No alerts during taxi, takeoff, climb, or cruise. "Five Hundred" on approach. No terrain alerts during the landing.
 - **End state:** Airplane parked at TJPS, no alerts given except the callout.
 - **Functions exercised:** F-3, F-6, F-9, F-10
 
@@ -153,7 +164,7 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Airport or area:** TJRV, with the Sierra de Luquillo to the northwest
 - **Starting conditions:** Airplane airborne, lined up for a normal approach.
 - **Sequence of events:** Pilot flies a normal descent to the runway and lands.
-- **Expected system behavior:** "Five hundred" on approach. No terrain alerts, even though high ground is nearby.
+- **Expected system behavior:** "Five Hundred" on approach. No terrain alerts, even though high ground is nearby.
 - **End state:** Airplane on the runway, no nuisance alerts.
 - **Functions exercised:** F-3, F-6, F-10
 
@@ -175,7 +186,7 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Airport or area:** Departing TJPS, heading north toward the Cordillera Central
 - **Starting conditions:** Airplane cruising low under a lowering cloud layer.
 - **Sequence of events:** Clouds hide the mountains. The pilot continues north without climbing.
-- **Expected system behavior:** "Caution, terrain" when terrain is predicted ahead. "Terrain, terrain, pull up" if the pilot does not respond, at least 30 seconds before the projected impact (SCOPE.md section 8). Alerts stop once the pilot climbs clear.
+- **Expected system behavior:** "Caution, Terrain; Caution, Terrain" when terrain is predicted ahead. "Terrain, Terrain; Pull-Up, Pull-Up" if the pilot does not respond, at least 30 seconds before the projected impact (SCOPE.md section 8). Alerts stop once the pilot climbs clear.
 - **End state:** Airplane above the terrain, alerts cleared.
 - **Functions exercised:** F-4
 
@@ -185,7 +196,7 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Airport or area:** Any
 - **Starting conditions:** Airplane at low height above the terrain.
 - **Sequence of events:** Pilot begins a steep descent.
-- **Expected system behavior:** "Sink rate," then "Pull up" if the descent continues.
+- **Expected system behavior:** "Sink Rate," then "Pull-Up" if the descent continues.
 - **End state:** Pilot reduces the descent rate and the alerts stop.
 - **Functions exercised:** F-1
 
@@ -195,7 +206,7 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Airport or area:** TJSJ
 - **Starting conditions:** Airplane just airborne and climbing.
 - **Sequence of events:** Pilot is distracted and the airplane starts losing altitude.
-- **Expected system behavior:** "Don't sink."
+- **Expected system behavior:** "Don't Sink."
 - **End state:** Pilot establishes a climb and the alert stops.
 - **Functions exercised:** F-2
 
@@ -205,7 +216,7 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Airport or area:** TJRV
 - **Starting conditions:** Airplane inbound to the runway, still several miles out.
 - **Sequence of events:** Pilot descends early and ends up well below the normal approach path.
-- **Expected system behavior:** "Too low terrain."
+- **Expected system behavior:** "Too Low Terrain."
 - **End state:** Pilot levels off until back on the normal path, and the alert stops.
 - **Functions exercised:** F-5
 
@@ -224,7 +235,7 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Phase of flight:** Cruise
 - **Airport or area:** Heading toward the Sierra de Luquillo
 - **Starting conditions:** Airplane in level flight toward terrain higher than its altitude.
-- **Sequence of events:** "Caution, terrain" is given. The pilot turns away before a warning.
+- **Sequence of events:** "Caution, Terrain; Caution, Terrain" is given. The pilot turns away before a warning.
 - **Expected system behavior:** The caution stops once the new path is clear of terrain. No warning is given.
 - **End state:** Airplane flying away from the terrain, no alerts active.
 - **Functions exercised:** F-4
@@ -237,7 +248,7 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Airport or area:** Any
 - **Starting conditions:** Airplane cruising, system working.
 - **Sequence of events:** The satellite navigation receiver stops giving a valid position.
-- **Expected system behavior:** Terrain alerting is inhibited. Unavailable light on and unavailable message given.
+- **Expected system behavior:** Terrain alerting is inhibited. "TAWS Unavailable" is spoken once, and the unavailable message stays on the display.
 - **End state:** Pilot knows the TAWS cannot be trusted and flies by other means.
 - **Functions exercised:** F-8
 
@@ -277,9 +288,19 @@ Priority is the position in AC 23-18 Table 3, where 1 is the most urgent. Only t
 - **Airport or area:** Any
 - **Starting conditions:** Airplane cruising, system working.
 - **Sequence of events:** The sensor keeps sending the same values, marked valid, while the airplane is actually moving.
-- **Expected system behavior:** The system detects that the data is stale. Terrain alerting is inhibited and the unavailable light comes on.
+- **Expected system behavior:** The system detects that the data is stale. Terrain alerting is inhibited and the unavailable message is shown.
 - **End state:** Pilot knows the TAWS cannot be trusted.
 - **Functions exercised:** F-8
+
+#### OS-260: Unit restarts in flight
+
+- **Phase of flight:** Cruise
+- **Airport or area:** Any
+- **Starting conditions:** Airplane cruising, system working.
+- **Sequence of events:** The unit loses power briefly and starts up again while the airplane is flying.
+- **Expected system behavior:** Self test runs only the silent checks, with no test sounds or test text. The unit goes straight to Airborne. Altitude loss after takeoff stays off until the next real takeoff.
+- **End state:** Unit protecting the flight again, without distracting the pilot.
+- **Functions exercised:** F-2, F-9, F-10
 
 ---
 
@@ -313,12 +334,13 @@ The sensor and unit failure scenarios (OS-210, OS-220, and OS-250) are not flown
 | OS-230 | | | | | | | | X | | |
 | OS-240 | X | | | X | | | | | | |
 | OS-250 | | | | | | | | X | | |
+| OS-260 | | X | | | | | | | X | X |
 
 ---
 
 ## 9. Open items
 
-Open items raised in this document (TBD-107 to TBD-110) are kept in [TBD.md](TBD.md).
+The open item raised in this document (TBD-108) is kept in [TBD.md](TBD.md). Resolved items from this document (TBD-107, TBD-109, TBD-110, TBD-115, and TBD-116) are kept there too.
 
 ---
 
@@ -333,3 +355,4 @@ Open items raised in this document (TBD-107 to TBD-110) are kept in [TBD.md](TBD
 | Version | Date | Description |
 |---|---|---|
 | 0.1 | 2026-09-28 | Initial draft |
+| 0.2 | 2026-09-29 | Resolved TBD-109: section 5.6 and scenarios OS-110, OS-120, and OS-160 now use TSO-C151c wording for the excessive descent warning and terrain ahead alerts. Added TSO-C151c to referenced documents. Raised TBD-115. Replaced lights with a small color text display. Used TSO-C151c capitalization for all aural wording. Added section 5.7 for the terrain ahead variants. Raised TBD-116. Section 5.5 now states the on ground rule from TBD-107 and how self test works after a restart in the air. Resolved TBD-110, TBD-115, and TBD-116 in section 5.6. Added the settings file to section 5.3 and scenario OS-260. |

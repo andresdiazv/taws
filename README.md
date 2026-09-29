@@ -4,13 +4,13 @@
 A controlled flight into terrain (CFIT) occurs when a fully functional aircraft is unintentionally flown into the ground, often because the crew doesn't realize how close the terrain is. This project develops a Class B Terrain Awareness and Warning System prototype, based on FAA AC 23-18 (Federal Aviation Administration Advisory Circular Part 23 Airplane), that uses GPS, barometric altitude, and a Puerto Rico terrain database to warn pilots before impact.
 
 ### Class B TAWS Equipment:
-A class of equipment that is defined in TSO C151a. As a minimum, it will provide alerts for the following circumstances:
+A class of equipment defined in TSO-C151. This project uses revision TSO-C151c. As a minimum, it will provide alerts for the following circumstances:
 - Reduced required terrain clearance. 
 - Imminent terrain impact. 
 - Premature descent. 
 - Excessive rates of descent. 
 - Negative climb rate or altitude loss after take-off. 
-- Descent of the airplane to 500 feet above the terrain or nearest runway elevation (voice callout "Five Hundred") during a non-precision approach. 
+- Descent of the airplane to 500 feet above the terrain or nearest runway elevation (voice callout "Five Hundred"). 
 
 Class B TAWS installation may provide a terrain awareness display that shows either the surrounding terrain or obstacles relative to the airplane, or both.
 
@@ -26,6 +26,7 @@ Read these in order. Each document builds on the one before it.
 | [Scope](docs/SCOPE.md) | What the project will and will not build, assumptions, success criteria, and risks |
 | [Concept of Operations](docs/CONOPS.md) | How the system behaves from the pilot's point of view, and the scenarios it must handle |
 | [System Requirements](requirements/REQUIREMENTS.md) | What the system shall do, with a source and verification method for each requirement |
+| [Software Requirements](requirements/SOFTWARE.md) | What the software shall do, including the numbers the code and tests use |
 | [TBD Log](docs/TBD.md) | Open decisions for the whole project, and the history of resolved ones |
 | [Development Log](docs/LOG.md) | What was built and learned each day |
 

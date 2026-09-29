@@ -2,8 +2,8 @@
 
 **Project:** Class B Terrain Awareness and Warning System (TAWS) prototype
 **Document:** TAWS-SCOPE
-**Version:** 0.2
-**Last updated:** 2026-09-28
+**Version:** 0.3
+**Last updated:** 2026-09-29
 
 ---
 
@@ -49,7 +49,7 @@ These assumptions shape nearly every number in the requirements. If one changes,
 | A-4 | Vertical speed ranges from about −2,000 to +700 feet per minute in normal operation. The climb figure is from the Pilot's Operating Handbook (Appendix A); descent rates are to be confirmed by measurement (TBD-103). |
 | A-5 | The operating area is the main island of Puerto Rico. Terrain outside that area is not covered. |
 | A-6 | Position comes from a single satellite navigation receiver. There is no backup position source. |
-| A-7 | Altitude comes from a barometric pressure sensor, blended with satellite altitude. There is no radio altimeter. |
+| A-7 | Altitude comes from a barometric pressure sensor, corrected using satellite altitude because the unit has no way to enter the local altimeter setting (QNH). Descent rate is calculated from the pressure altitude. There is no radio altimeter. |
 | A-8 | The airport database covers three airports: Ponce (TJPS), San Juan (TJSJ), and Ceiba (TJRV). These were chosen because each presents a different terrain situation. The list is stored as data rather than written into the code, so more airports can be added later without changing the software. Private airstrips, heliports, and all other airports are absent. |
 | A-9 | The unit runs on laboratory power (Universal Serial Bus, or USB) at room temperature. It is not designed for aircraft power, vibration, or temperature extremes. |
 | A-10 | The unit is never installed in an aircraft or any other vehicle. Flight behavior is exercised using simulated inputs; the real sensors are exercised on the bench, stationary, at a known location. |
@@ -75,16 +75,28 @@ The system implements the Class B functions described in Federal Aviation Admini
 | F-9 | Power-up self test | Checks sensors, terrain map access, airport database access, and outputs at startup, and reports the result. Self test is disabled once the system considers itself airborne. |
 | F-10 | On-ground inhibit | Suppresses alerts while the aircraft is on the ground so the unit is silent during taxi and parking. |
 
-**Implementation order.** F-5 and F-6 depend on the airport database and are implemented last. If the schedule slips, they are the first candidates for deferral, which would return the system to a subset of Class B. Any such deferral is recorded here and in the verification report.
+**Implementation order.** F-5 and F-6 depend on the airport database and are implemented last. The runway elevation part of F-3 also needs the airport database and is built with them; the terrain part of F-3 is built earlier. If the schedule slips, they are the first candidates for deferral, which would return the system to a subset of Class B. Any such deferral is recorded here and in the verification report.
+
+**Mapping to ground proximity warning system (GPWS) modes.** Older terrain warning equipment numbers its alerting functions as modes, and the terms are still used. This table shows where each mode sits in this project.
+
+| Mode | What it detects | In this project |
+|---|---|---|
+| 1 | Excessive descent rate | F-1 |
+| 2 | Closing on terrain too fast | Out of scope (section 6) |
+| 3 | Altitude loss after takeoff | F-2 |
+| 4 | Too low, not in landing configuration | Out of scope (section 6) |
+| 5 | Below the glideslope | Out of scope (section 6) |
+| 6 | Callouts, such as "Five Hundred" | F-3 |
+| 7 | Windshear | Out of scope (section 6) |
 
 ### 5.2 Engineering artifacts
 
 | ID | Artifact |
 |---|---|
-| D-1 | This scope document |
-| D-2 | Concept of operations describing each phase of flight and the scenarios the system must handle |
-| D-3 | System requirements, each with a unique identifier, rationale, source, and verification method |
-| D-4 | Software requirements derived from the system requirements |
+| D-1 | This scope document (docs/SCOPE.md) |
+| D-2 | Concept of operations describing each phase of flight and the scenarios the system must handle (docs/CONOPS.md) |
+| D-3 | System requirements, each with a unique identifier, rationale, source, and verification method (requirements/REQUIREMENTS.md) |
+| D-4 | Software requirements derived from the system requirements (requirements/SOFTWARE.md) |
 | D-5 | Interface control document defining the data exchanged between the flight simulator and the unit |
 | D-6 | Lightweight hazard assessment covering false alerts, missed alerts, and silent failures |
 | D-7 | Unit tests, automated integration tests, and simulator-driven system tests |
@@ -95,7 +107,7 @@ The system implements the Class B functions described in Federal Aviation Admini
 ### 5.3 Hardware and software
 
 - One microcontroller board running the alerting software written in the C programming language.
-- A satellite navigation receiver, a barometric pressure sensor, a memory card holding the terrain map and airport database, indicator lights, and a speaker driven by an audio playback module for spoken alerts.
+- A satellite navigation receiver, a barometric pressure sensor, a memory card holding the terrain map and airport database, a small color display that shows alert messages as text, and a speaker driven by an audio playback module for spoken alerts.
 - A terrain map built from public United States Geological Survey (USGS) elevation data covering Puerto Rico.
 - An airport database built from public FAA or equivalent open data, containing runway threshold positions, elevations, and headings for the airports defined in A-8.
 - An automated test harness written in Python that replays flight data files and connects to the FlightGear flight simulator.
@@ -135,7 +147,7 @@ Each exclusion is deliberate. None of these is a gap to be filled later in this 
 | Obstacle alerting | Requires an obstacle database. Towers and buildings are not present in bare-earth elevation data. |
 | Published instrument approach procedures | The premature descent function uses a straight nominal approach path to the runway, not published procedure data. |
 | Airports outside the area defined in A-8 | Keeps the database small enough to build and verify by hand. |
-| Terrain display | Not required for Class B equipment, and a display would roughly double the scope. |
+| Terrain display | Not required for Class B equipment, and a display would roughly double the scope. The small display in section 5.3 shows alert text only, not terrain. |
 | Certification or airworthiness approval | This is an educational project. It will never be installed or flown. |
 | Environmental qualification, including vibration, temperature, and lightning testing | Requires laboratory equipment that is not available. |
 | Airplane flight manual material and crew procedures | Only relevant to a system intended for installation. |
@@ -157,10 +169,11 @@ These are honest statements about what the finished system will not do well. The
 6. **Static databases.** Terrain and airport data are snapshots taken on a recorded date. Runway changes, new construction, and terrain changes after that date are not reflected.
 7. **Simplified approach model.** The premature descent function assumes a straight nominal descent path to the runway threshold. Aircraft flying a published procedure that differs from that path may receive nuisance alerts.
 8. **No temperature compensation.** In very cold conditions barometric altitude reads higher than the true height, which would reduce the effective warning margin. This does not apply to the intended operating area.
-9. **Alert threshold values are self-derived.** The published minimum performance standards that define the exact alerting curves are paid documents. Threshold values used here are derived from publicly available descriptions and are documented with their reasoning. They are not claimed to match any certified product.
+9. **Some alert threshold values are self-derived.** Alert wording and minimum behavior come from TSO-C151c Appendix 1, which is public. Any threshold it does not give is derived from publicly available descriptions and documented with its reasoning. These values are not claimed to match any certified product.
 10. **Live sensors are only tested while stationary.** The real receiver and pressure sensor are exercised at a fixed location, so the altitude and vertical speed estimator is never fed real sensor data while moving. Its behavior under real motion, including real noise and real signal loss, is verified only against simulated data.
 11. **The nuisance alert figure is a sample, not a rate.** Twenty flights can show that the system behaves sensibly. They cannot prove how often it would misbehave over thousands of flight hours, which is what the advisory circular asks of real equipment. The figures in section 8 are a sanity check, not a claim about reliability.
 12. **Not certified.** The system meets no regulatory standard and has undergone no formal approval of any kind.
+13. **Altitude depends on satellite accuracy.** Pressure altitude is corrected using satellite altitude, so any error in satellite altitude carries into height above terrain. The TSO requires a satellite accuracy standard (RTCA DO-229D) that is not public, so this project does not claim to meet it.
 
 ---
 
@@ -196,7 +209,7 @@ The project is complete when all of the following are true:
 | # | Risk | Response |
 |---|---|---|
 | R-1 | The terrain map is too large for the microcontroller's memory. | Store the map on a memory card and load only the tiles near the aircraft. Prove the approach early, in the terrain stage. |
-| R-2 | Alert thresholds cannot be sourced from public documents. | Define thresholds independently, document the reasoning, and state clearly that they do not replicate any certified product. |
+| R-2 | Some alert thresholds are not given in public documents. | Use TSO-C151c Appendix 1 where it gives a value. Otherwise define the threshold independently, document the reasoning, and state clearly that it does not replicate any certified product. |
 | R-3 | Simulator interface proves harder than expected. | Build and test the alerting logic against recorded data first, so the simulator link is not on the critical path. |
 | R-4 | Scope grows during the project. | Every addition must trace to a requirement. Ideas without one go on the backlog. |
 | R-5 | Available time drops below plan. | Stages are ordered so that stopping after any completed stage still leaves a coherent, demonstrable result. |
@@ -224,12 +237,15 @@ The project is complete when all of the following are true:
 | Knots indicated airspeed (KIAS) | Airspeed as shown on the aircraft's instrument. |
 | Knots true airspeed (KTAS) | Airspeed corrected for altitude and temperature. |
 | Mean sea level (MSL) | Altitude measured from average sea level rather than from the ground below. |
+| Mode | A numbered alerting function from older GPWS equipment. See the mapping in section 5.1. |
 | Nuisance alert | An alert that is correct according to the system's own rules, but unhelpful, because the flight was proceeding normally and safely. Usually a sign that the rules need refining, not that something broke. |
 | Premature descent alert (PDA) | An alert issued when the aircraft is hazardously below the normal approach path to the nearest runway. |
+| QNH | The local altimeter setting. It corrects pressure altitude for today's weather so the altimeter reads height above sea level. |
 | Runway threshold | The beginning of the portion of the runway usable for landing, used here as the reference point for the approach path. |
 | Terrain awareness and warning system (TAWS) | Equipment that warns the crew about hazardous terrain in time to avoid it. |
-| Unit | The finished prototype: the microcontroller board, the sensors, the memory card, the lights, and the speaker, together in one enclosure. |
+| Unit | The finished prototype: the microcontroller board, the sensors, the memory card, the display, and the speaker, together in one enclosure. |
 | Update rate | How many times per second the software reads its sensors, recalculates, and decides whether to alert. |
+| Variant | One of two wordings that TSO-C151c allows for the terrain ahead aural alerts. See CONOPS.md section 5.7. |
 
 ---
 
@@ -239,7 +255,7 @@ The project is complete when all of the following are true:
 |---|---|
 | FAA Advisory Circular 23-18, *Installation of Terrain Awareness and Warning System (TAWS) Approved for Part 23 Airplanes*, 14 June 2000 | Primary source for the Class B function list, alert prioritization, and test approach. |
 | 14 CFR 91.223, *Terrain awareness and warning system* | The rule that defines which aircraft must carry TAWS. |
-| FAA Technical Standard Order TSO-C151 | The equipment standard referenced by the advisory circular. Later revisions exist. |
+| FAA Technical Standard Order TSO-C151c, effective 6/27/12 | The equipment standard. Appendix 1 gives the minimum performance standard, including alert wording. Appendix 2 gives the excessive descent rate envelopes (para 7.0, Figure 1). |
 | *Cessna Model 172P Pilot's Operating Handbook and FAA Approved Airplane Flight Manual* | Source of the speed, climb, and ceiling figures in section 4. |
 | USGS 3D Elevation Program elevation data | Public domain source of the terrain map. |
 | FAA National Airspace System Resource (NASR) data, or equivalent open airport data | Source of runway positions, elevations, and headings. Record the snapshot date used. |
@@ -259,6 +275,7 @@ All open and resolved items for the project are kept in [TBD.md](TBD.md).
 |---|---|---|
 | 0.1 | 2026-09-27 | Initial draft |
 | 0.2 | 2026-09-28 | Replaced the audible alert device with a speaker and audio playback module, so alerts can be spoken. Added the three sources of flight data files to section 5.4 and updated the test harness description in section 5.3. Success criterion 7 now points to TBD-113 instead of a verification plan. Moved open items to TBD.md. |
+| 0.3 | 2026-09-29 | Updated limitation 9, risk R-2, and the TSO reference, since TSO-C151c Appendix 1 is public. Replaced indicator lights with a small color text display. Added the GPWS mode mapping to section 5.1 and definitions for mode and variant. Added file names to D-1 to D-4 and Appendix 2 to the TSO reference. A-7 now explains the altitude correction and descent rate source. Updated the implementation order for F-3. Added limitation 13 and a definition for QNH. |
 
 ---
 

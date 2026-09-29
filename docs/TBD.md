@@ -2,7 +2,7 @@
 
 **Project:** Class B Terrain Awareness and Warning System (TAWS) prototype\
 **Document:** TAWS-TBD\
-**Last updated:** 2026-09-28
+**Last updated:** 2026-09-29
 
 ---
 
@@ -24,14 +24,16 @@ This is the single list of open decisions for the whole project. A TBD (to be de
 |---|---|---|---|
 | TBD-103 | Maximum descent rate the system must handle, to be confirmed by flying and measuring descents in the simulator | SCOPE.md A-4 | Requirements review |
 | TBD-106 | Update rate and the time budget allowed for one cycle | SCOPE.md section 8 | Requirements review |
-| TBD-107 | How the system decides the airplane is airborne or on the ground | CONOPS.md section 5.5 | Requirements review |
 | TBD-108 | How long data must be valid before leaving the Unavailable state | CONOPS.md section 5.5 | Requirements review |
-| TBD-109 | Exact wording of the aural messages marked with an asterisk. AC 23-18 Table 3 names these alerts but does not give their words. | CONOPS.md section 5.6 | Requirements review |
-| TBD-110 | Aural message, if any, for system unavailable | CONOPS.md section 5.6 | Requirements review |
 | TBD-111 | Maximum time the satellite position can be invalid before terrain alerts are inhibited | REQUIREMENTS.md TAWS-SYS-700 | Requirements review |
 | TBD-112 | Maximum time to annunciate that the TAWS is unavailable | REQUIREMENTS.md TAWS-SYS-710 | Requirements review |
 | TBD-113 | Code coverage target, including the type of coverage measured (for example, statement or branch coverage) | SCOPE.md section 8 | Requirements review |
-| TBD-114 | When the five hundred foot callout is armed, and which reference (terrain or runway elevation) applies when both are available | REQUIREMENTS.md TAWS-SYS-400 | Requirements review |
+| TBD-117 | Excessive descent envelope breakpoints are my estimates from the image of TSO-C151c Appendix 2 Figure 1. Check them against a clean copy, and decide how the boundary runs between the 100 ft floor and the 200 ft start point. | SOFTWARE.md section 3.1 | Before coding F-1 |
+| TBD-118 | Ground speed above which the airplane can be judged airborne. Above taxi speed and below takeoff speed (see the Pilot's Operating Handbook, section 4). | TBD-107 resolution | Before coding F-10 |
+| TBD-119 | Height above terrain above which the airplane can be judged airborne. Larger than the expected altitude error near the ground. | TBD-107 resolution | Before coding F-10 |
+| TBD-120 | Height above terrain the airplane must climb above before the "Five Hundred" callout can play again | REQUIREMENTS.md TAWS-SYS-420 | Before coding F-3 |
+| TBD-121 | Maximum delay in the calculated descent rate, caused by smoothing | REQUIREMENTS.md TAWS-SYS-1420 | Before coding F-1 |
+| TBD-122 | Time over which the difference between pressure altitude and satellite altitude is averaged for the altitude correction | REQUIREMENTS.md TAWS-SYS-1400 | Before coding F-1 |
 
 ---
 
@@ -46,3 +48,9 @@ Resolved items are kept here so the history of each decision is visible.
 | TBD-102 | Acceptable nuisance alerts | None while cruising; at most one per ten approaches | 2026-09-27 |
 | TBD-104 | Airports included in the database | TJPS, TJSJ, TJRV | 2026-09-27 |
 | TBD-105 | Number of simulated approaches used for nuisance measurement | 10 approaches | 2026-09-27 |
+| TBD-109 | Exact wording of the excessive descent warning and terrain ahead aural messages | Quoted from TSO-C151c Appendix 1 Table 4-1, Class B, into CONOPS.md section 5.6. Both terrain ahead variants are supported (TAWS-SYS-510 to 530). AC 23-18 Table 3 gives names and priority only, so it is not the source for wording. | 2026-09-29 |
+| TBD-107 | How the system decides the airplane is airborne or on the ground | Airborne when ground speed is above TBD-118 and height above terrain is above TBD-119. On ground otherwise. No time delay for now; add one if testing shows the state switching back and forth near the thresholds. | 2026-09-29 |
+| TBD-110 | Aural message, if any, for system unavailable | "TAWS Unavailable", spoken once. The display keeps showing an unavailable message until the system recovers. The TSO gives no wording, so this wording is my own. | 2026-09-29 |
+| TBD-114 | When the five hundred foot callout is armed, and which reference applies when both are available | Plays once per descent, from whichever reference is reached first. It plays again only after the airplane climbs above TBD-120 (TAWS-SYS-400 to 420). | 2026-09-29 |
+| TBD-115 | Altitude loss after takeoff (Mode 3) wording: "Don't Sink", "Too Low Terrain", or both | "Don't Sink" only. AC 23-18 Table 3 names Mode 3 as "Don't Sink", and this keeps "Too Low Terrain" unique to premature descent so the pilot can tell the alerts apart. | 2026-09-29 |
+| TBD-116 | Text shown on the display for each alert | The spoken message in capitals, without repeats. For example "PULL UP", "SINK RATE", "CAUTION TERRAIN", "TERRAIN PULL UP". To be checked against the visual column of TSO-C151c Table 4-1. | 2026-09-29 |
