@@ -17,6 +17,18 @@ Class B TAWS installation may provide a terrain awareness display that shows eit
 
 *Educational project; not certified for flight and not affiliated with any companies*
 
+## Documentation
+
+Read these in order. Each document builds on the one before it.
+
+| Document | What it covers |
+|---|---|
+| [Scope](docs/SCOPE.md) | What the project will and will not build, assumptions, success criteria, and risks |
+| [Concept of Operations](docs/CONOPS.md) | How the system behaves from the pilot's point of view, and the scenarios it must handle |
+| [System Requirements](requirements/REQUIREMENTS.md) | What the system shall do, with a source and verification method for each requirement |
+| [TBD Log](docs/TBD.md) | Open decisions for the whole project, and the history of resolved ones |
+| [Development Log](docs/LOG.md) | What was built and learned each day |
+
 ## Build and test
 
 Requires `gcc` and `make`.
