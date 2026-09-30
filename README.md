@@ -27,6 +27,7 @@ Read these in order. Each document builds on the one before it.
 | [Concept of Operations](docs/CONOPS.md) | How the system behaves from the pilot's point of view, and the scenarios it must handle |
 | [System Requirements](requirements/REQUIREMENTS.md) | What the system shall do, with a source and verification method for each requirement |
 | [Software Requirements](requirements/SOFTWARE.md) | What the software shall do, including the numbers the code and tests use |
+| [Interface Control Document](docs/ICD.md) | The exact format of the flight data and settings files |
 | [TBD Log](docs/TBD.md) | Open decisions for the whole project, and the history of resolved ones |
 | [Development Log](docs/LOG.md) | What was built and learned each day |
 
