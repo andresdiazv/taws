@@ -2,8 +2,8 @@
 
 **Project:** Class B Terrain Awareness and Warning System (TAWS) prototype
 **Document:** TAWS-SCOPE
-**Version:** 0.3
-**Last updated:** 2026-09-29
+**Version:** 0.4
+**Last updated:** 2026-09-30
 
 ---
 
@@ -97,7 +97,7 @@ The system implements the Class B functions described in Federal Aviation Admini
 | D-2 | Concept of operations describing each phase of flight and the scenarios the system must handle (docs/CONOPS.md) |
 | D-3 | System requirements, each with a unique identifier, rationale, source, and verification method (requirements/REQUIREMENTS.md) |
 | D-4 | Software requirements derived from the system requirements (requirements/SOFTWARE.md) |
-| D-5 | Interface control document defining the data exchanged between the flight simulator and the unit |
+| D-5 | Interface control document defining the data exchanged between the flight simulator and the unit (docs/ICD.md) |
 | D-6 | Lightweight hazard assessment covering false alerts, missed alerts, and silent failures |
 | D-7 | Unit tests, automated integration tests, and simulator-driven system tests |
 | D-8 | Requirements verification matrix mapping every requirement to the test that proves it |
@@ -174,6 +174,7 @@ These are honest statements about what the finished system will not do well. The
 11. **The nuisance alert figure is a sample, not a rate.** Twenty flights can show that the system behaves sensibly. They cannot prove how often it would misbehave over thousands of flight hours, which is what the advisory circular asks of real equipment. The figures in section 8 are a sanity check, not a claim about reliability.
 12. **Not certified.** The system meets no regulatory standard and has undergone no formal approval of any kind.
 13. **Altitude depends on satellite accuracy.** Pressure altitude is corrected using satellite altitude, so any error in satellite altitude carries into height above terrain. The TSO requires a satellite accuracy standard (RTCA DO-229D) that is not public, so this project does not claim to meet it.
+14. **A degraded position is trusted if the receiver says it is valid.** The unit uses the receiver's valid flag and does not check the receiver's own accuracy estimate. A position that is badly degraded but still flagged valid keeps alerts running. The AC and TSO treat a degraded position as unsuitable, so this is a known gap.
 
 ---
 
@@ -182,7 +183,7 @@ These are honest statements about what the finished system will not do well. The
 The project is complete when all of the following are true:
 
 1. Every system requirement has at least one automated test, and every test passes or is explicitly deferred with a written reason.
-2. The unit runs the complete alerting chain on real hardware at its designed update rate (TBD-106), and the measured time taken by each cycle stays inside the documented budget.
+2. The unit runs the complete alerting chain on real hardware at 5 cycles per second, and the measured time taken by each cycle stays under 0.2 seconds.
 3. A single command runs the full scenario suite against the hardware and produces a pass or fail report.
 4. In simulation, terrain warnings occur at least 30 seconds before the projected point of impact. At 120 knots that is about one nautical mile of room, and enough time for this aircraft to climb roughly 350 feet, which clears the kind of ridge the system is meant to protect against.
 5. Across 20 simulated flights flown normally, no nuisance alerts occur while cruising or en route.
@@ -236,6 +237,7 @@ The project is complete when all of the following are true:
 | Knots calibrated airspeed (KCAS) | Indicated airspeed corrected for instrument and installation error. |
 | Knots indicated airspeed (KIAS) | Airspeed as shown on the aircraft's instrument. |
 | Knots true airspeed (KTAS) | Airspeed corrected for altitude and temperature. |
+| Invalid position | The receiver's valid flag is 0, a satellite field is outside its range, or the data is more than 1 second old. Defined in ICD.md sections 5.3 to 5.5. |
 | Mean sea level (MSL) | Altitude measured from average sea level rather than from the ground below. |
 | Mode | A numbered alerting function from older GPWS equipment. See the mapping in section 5.1. |
 | Nuisance alert | An alert that is correct according to the system's own rules, but unhelpful, because the flight was proceeding normally and safely. Usually a sign that the rules need refining, not that something broke. |
@@ -276,6 +278,7 @@ All open and resolved items for the project are kept in [TBD.md](TBD.md).
 | 0.1 | 2026-09-27 | Initial draft |
 | 0.2 | 2026-09-28 | Replaced the audible alert device with a speaker and audio playback module, so alerts can be spoken. Added the three sources of flight data files to section 5.4 and updated the test harness description in section 5.3. Success criterion 7 now points to TBD-113 instead of a verification plan. Moved open items to TBD.md. |
 | 0.3 | 2026-09-29 | Updated limitation 9, risk R-2, and the TSO reference, since TSO-C151c Appendix 1 is public. Replaced indicator lights with a small color text display. Added the GPWS mode mapping to section 5.1 and definitions for mode and variant. Added file names to D-1 to D-4 and Appendix 2 to the TSO reference. A-7 now explains the altitude correction and descent rate source. Updated the implementation order for F-3. Added limitation 13 and a definition for QNH. |
+| 0.4 | 2026-09-30 | Success criterion 2 now uses the 5 cycles per second and 0.2 second budget from ICD.md. Added the file name to D-5. Added limitation 14 and a definition for invalid position. |
 
 ---
 

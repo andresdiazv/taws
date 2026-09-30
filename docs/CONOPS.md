@@ -2,8 +2,8 @@
 
 **Project:** Class B Terrain Awareness and Warning System (TAWS) prototype\
 **Document:** TAWS-CONOPS\
-**Version:** 0.2\
-**Last updated:** 2026-09-29
+**Version:** 0.3\
+**Last updated:** 2026-09-30
 
 ---
 
@@ -104,7 +104,7 @@ The TAWS is a small unit that knows where the airplane is, how high it is, and w
 | Self test | Checks sensors, memory card, and outputs. If the airplane is already airborne, only the silent checks run. | Power is applied. | Test passes (to On ground or Airborne, using the rule below) or fails (to Unavailable). |
 | On ground | All alerts inhibited. | Self test passes, or ground speed or height above terrain drops below its threshold. | Ground speed is above TBD-118 and height above terrain is above TBD-119. |
 | Airborne | All alerting functions active. | Ground speed is above TBD-118 and height above terrain is above TBD-119. | Ground speed or height above terrain drops below its threshold, or data becomes invalid. |
-| Unavailable | Terrain alerting inhibited. Unavailable message shown. | Self test fails, or sensor or terrain data becomes invalid. | Valid data returns (TBD-108). |
+| Unavailable | All alerts inhibited. Unavailable message shown. | Self test fails, or sensor or terrain data becomes invalid. | The failed data has been good for 5 seconds in a row. The message clears with no sound. A failed self test stays until the unit is restarted. |
 
 ### 5.6 Alerts seen by the pilot
 
@@ -248,7 +248,7 @@ TSO-C151c Appendix 1 para 4.7 allows two wordings for the terrain ahead alerts. 
 - **Airport or area:** Any
 - **Starting conditions:** Airplane cruising, system working.
 - **Sequence of events:** The satellite navigation receiver stops giving a valid position.
-- **Expected system behavior:** Terrain alerting is inhibited. "TAWS Unavailable" is spoken once, and the unavailable message stays on the display.
+- **Expected system behavior:** All alerts are inhibited right away. Within 2 seconds, "TAWS Unavailable" is spoken once, and the unavailable message stays on the display.
 - **End state:** Pilot knows the TAWS cannot be trusted and flies by other means.
 - **Functions exercised:** F-8
 
@@ -258,7 +258,7 @@ TSO-C151c Appendix 1 para 4.7 allows two wordings for the terrain ahead alerts. 
 - **Airport or area:** Any
 - **Starting conditions:** Memory card missing or unreadable.
 - **Sequence of events:** Pilot powers on the unit.
-- **Expected system behavior:** Self test reports failure. Unit goes to Unavailable.
+- **Expected system behavior:** Self test fails. The display shows which check failed, such as "MEMORY CARD". The unit goes to Unavailable and says "TAWS Unavailable" once.
 - **End state:** Pilot knows before takeoff that the TAWS is not working.
 - **Functions exercised:** F-8, F-9
 
@@ -287,8 +287,8 @@ TSO-C151c Appendix 1 para 4.7 allows two wordings for the terrain ahead alerts. 
 - **Phase of flight:** Cruise
 - **Airport or area:** Any
 - **Starting conditions:** Airplane cruising, system working.
-- **Sequence of events:** The sensor keeps sending the same values, marked valid, while the airplane is actually moving.
-- **Expected system behavior:** The system detects that the data is stale. Terrain alerting is inhibited and the unavailable message is shown.
+- **Sequence of events:** The satellite navigation receiver stops updating. Its last message still looks valid, but it keeps getting older.
+- **Expected system behavior:** The system sees the data is too old and treats the position as invalid. From there it behaves as in OS-210.
 - **End state:** Pilot knows the TAWS cannot be trusted.
 - **Functions exercised:** F-8
 
@@ -302,6 +302,16 @@ TSO-C151c Appendix 1 para 4.7 allows two wordings for the terrain ahead alerts. 
 - **End state:** Unit protecting the flight again, without distracting the pilot.
 - **Functions exercised:** F-2, F-9, F-10
 
+#### OS-270: Pressure sensor fails in flight
+
+- **Phase of flight:** Cruise
+- **Airport or area:** Any
+- **Starting conditions:** Airplane cruising, system working.
+- **Sequence of events:** The pressure sensor stops updating, or starts sending readings no Cessna 172 could produce.
+- **Expected system behavior:** All alerts are inhibited. Within 2 seconds, "TAWS Unavailable" is spoken once, and the unavailable message stays on the display. If the sensor recovers and stays good for 5 seconds, the message clears with no sound.
+- **End state:** Pilot knows the TAWS cannot be trusted until the message clears.
+- **Functions exercised:** F-8
+
 ---
 
 ## 7. Operations in this project
@@ -312,7 +322,7 @@ The unit is never installed in an aircraft (SCOPE.md A-10). Instead, each scenar
 2. **Simulator in the loop.** FlightGear flies the airplane and sends its data to the unit over a serial connection. The unit gives real alerts.
 3. **Bench test.** The real sensors run at a fixed, known location to confirm they give correct data.
 
-The sensor and unit failure scenarios (OS-210, OS-220, and OS-250) are not flown. The simulator always sends good data, so these are tested with modified files or, for OS-220, by removing the memory card on the bench.
+The sensor and unit failure scenarios (OS-210, OS-220, OS-250, and OS-270) are not flown. The simulator always sends good data, so these are tested with modified files or, for OS-220, by removing the memory card on the bench.
 
 ---
 
@@ -335,12 +345,13 @@ The sensor and unit failure scenarios (OS-210, OS-220, and OS-250) are not flown
 | OS-240 | X | | | X | | | | | | |
 | OS-250 | | | | | | | | X | | |
 | OS-260 | | X | | | | | | | X | X |
+| OS-270 | | | | | | | | X | | |
 
 ---
 
 ## 9. Open items
 
-The open item raised in this document (TBD-108) is kept in [TBD.md](TBD.md). Resolved items from this document (TBD-107, TBD-109, TBD-110, TBD-115, and TBD-116) are kept there too.
+All items raised in this document (TBD-107 to TBD-110, TBD-115, and TBD-116) are resolved. They are kept in [TBD.md](TBD.md).
 
 ---
 
@@ -356,3 +367,4 @@ The open item raised in this document (TBD-108) is kept in [TBD.md](TBD.md). Res
 |---|---|---|
 | 0.1 | 2026-09-28 | Initial draft |
 | 0.2 | 2026-09-29 | Resolved TBD-109: section 5.6 and scenarios OS-110, OS-120, and OS-160 now use TSO-C151c wording for the excessive descent warning and terrain ahead alerts. Added TSO-C151c to referenced documents. Raised TBD-115. Replaced lights with a small color text display. Used TSO-C151c capitalization for all aural wording. Added section 5.7 for the terrain ahead variants. Raised TBD-116. Section 5.5 now states the on ground rule from TBD-107 and how self test works after a restart in the air. Resolved TBD-110, TBD-115, and TBD-116 in section 5.6. Added the settings file to section 5.3 and scenario OS-260. |
+| 0.3 | 2026-09-30 | Updated the Unavailable state and scenarios OS-210, OS-220, and OS-250 to match the new self test, position loss, and stale data requirements. Added scenario OS-270 (pressure sensor fails) and the recovery rule for the Unavailable state. Any sensor failure now inhibits all alerts. |
